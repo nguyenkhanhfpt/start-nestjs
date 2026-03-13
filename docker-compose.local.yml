@@ -37,7 +37,9 @@ services:
       - database-data:/var/lib/postgresql/data
     restart: always
     ports:
-      - "${DATABASE_PORT}:5432"
+      # Map to port 5440 on host to avoid conflict with local PostgreSQL (5432)
+      # Container internal port remains 5432
+      - "${DATABASE_PORT_EXTERNAL:-5440}:5432"
     environment:
       POSTGRES_DB: "${DATABASE_NAME}"
       POSTGRES_USER: "${DATABASE_USER}"
@@ -46,24 +48,27 @@ services:
     networks:
       - app-network
 
-  localstack:
-    image: localstack/localstack
-    ports:
-      - "4566:4566"
-    environment:
-      - SERVICES=s3
-      - GATEWAY_LISTEN=0.0.0.0:4566
-    volumes:
-      - localstack-data:/var/lib/localstack # Persist data
-      - localstack-docker-sock:/var/run/docker.sock
-    networks:
-      - app-network
+  # localstack:
+  #   image: localstack/localstack
+  #   ports:
+  #     # LocalStack port (no conflict expected)
+  #     - "${LOCALSTACK_PORT:-4566}:4566"
+  #   environment:
+  #     - SERVICES=s3
+  #     - GATEWAY_LISTEN=0.0.0.0:4566
+  #   volumes:
+  #     - localstack-data:/var/lib/localstack # Persist data
+  #     - localstack-docker-sock:/var/run/docker.sock
+  #   networks:
+  #     - app-network
 
   redis:
     image: redis/redis-stack:latest
     restart: always
     ports:
-      - "6379:6379"
+      # Map to port 6400 on host to avoid conflict with local Redis (6379)
+      # Container internal port remains 6379
+      - "${REDIS_PORT_EXTERNAL:-6400}:6379"
     volumes:
       - redis_data:/data
     healthcheck:
@@ -75,8 +80,8 @@ services:
 
 volumes:
   database-data:
-  localstack-data:
-  localstack-docker-sock:
+  # localstack-data:
+  # localstack-docker-sock:
   redis_data:
 
 networks:

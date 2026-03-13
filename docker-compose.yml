@@ -40,7 +40,9 @@ services:
       - database-data:/var/lib/postgresql/data
     restart: always
     ports:
-      - "${DATABASE_PORT}:5432"
+      # Production: typically only expose to internal network
+      # If you need external access, use DATABASE_PORT_EXTERNAL
+      - "${DATABASE_PORT_EXTERNAL:-5432}:5432"
     environment:
       POSTGRES_DB: "${DATABASE_NAME}"
       POSTGRES_USER: "${DATABASE_USER}"
@@ -54,7 +56,9 @@ services:
     container_name: app-redis
     restart: always
     ports:
-      - "6379:6379"
+      # Production: typically only expose to internal network
+      # If you need external access, use REDIS_PORT_EXTERNAL
+      - "${REDIS_PORT_EXTERNAL:-6379}:6379"
     volumes:
       - redis_data:/data
     healthcheck:

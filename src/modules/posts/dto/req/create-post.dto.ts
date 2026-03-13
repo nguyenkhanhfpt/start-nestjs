@@ -1,6 +1,6 @@
 import { PostEntity } from '@database/entities/post.entity';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsString, MinLength, MaxLength } from 'class-validator';
 
 export class CreatePostDto {
   public static readonly resource = PostEntity.name;
@@ -11,6 +11,8 @@ export class CreatePostDto {
   })
   @IsNotEmpty()
   @IsString()
+  @MinLength(3)
+  @MaxLength(255)
   title: string;
 
   @ApiProperty({
@@ -19,5 +21,7 @@ export class CreatePostDto {
   })
   @IsNotEmpty()
   @IsString()
+  @MinLength(10)
+  @MaxLength(10000)
   content: string;
 }
