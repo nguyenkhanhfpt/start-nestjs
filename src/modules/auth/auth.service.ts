@@ -31,6 +31,7 @@ export class AuthService {
   async login(loginDto: LoginDto): Promise<LoginResDto> {
     const user = await this.userRepository.findOne({
       where: { email: loginDto.email },
+      select: ['id', 'name', 'email', 'password'],
     });
 
     if (!user) {
@@ -83,8 +84,7 @@ export class AuthService {
   }
 
   logout() {
-    console.log('logout');
-
+    // TODO: Implement token blacklist mechanism
     return true;
   }
 

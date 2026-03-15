@@ -1,4 +1,4 @@
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsEmail, MinLength, MaxLength } from 'class-validator';
 import { UserEntity } from '@database/entities/user.entity';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -11,6 +11,7 @@ export class LoginDto {
     type: String,
   })
   @IsNotEmpty()
+  @IsEmail()
   email: string;
 
   @ApiProperty({
@@ -19,5 +20,7 @@ export class LoginDto {
     type: String,
   })
   @IsNotEmpty()
+  @MinLength(6)
+  @MaxLength(128)
   password: string;
 }
