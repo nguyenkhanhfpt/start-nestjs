@@ -1,4 +1,11 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from '@modules/auth/dtos/req/login.dto';
 import { RegisterDto } from '@modules/auth/dtos/req/register.dto';
@@ -62,9 +69,30 @@ export class AuthController {
 
   @Get('logout')
   @ApiOperation({ summary: 'Logout', description: 'User logout endpoint' })
+  @ApiResponse({
+    status: 200,
+    description: 'The user has been successfully logged out.',
+    type: Boolean,
+  })
   @ApiGetErrorsResponse()
-  logout() {
-    return 'Logout';
+  async logout(@Request() request: any): Promise<boolean> {
+    const token = this.extractTokenFromHeader(request);
+    return this.authService.logout(token);
+  }
+
+  /**
+   * Extract JWT token from Authorization header
+   * @param request - HTTP request object
+   * @returns Token string or undefined
+   */
+  private extractTokenFromHeader(request: any): string | undefined {
+    const authHeader = request.headers.authorization;
+    if (!authHeader) {
+      return undefined;
+    }
+
+    const [type, token] = authHeader.split(' ');
+    return type === 'Bearer' ? token : undefined;
   }
 
   /**

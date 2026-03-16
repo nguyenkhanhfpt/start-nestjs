@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { LoginDto } from '@modules/auth/dtos/req/login.dto';
 import { RegisterDto } from '@modules/auth/dtos/req/register.dto';
 import { Repository } from 'typeorm';
@@ -11,17 +11,21 @@ import { JwtPayload } from '@modules/auth/strategies/access-token.strategy';
 import { GetTokenDto, LoginResDto } from './dtos/res/login-res.dto';
 import { GetUserResDto } from './dtos/res';
 import { plainToInstance } from 'class-transformer';
+import { TokenBlacklistService } from './services/token-blacklist.service';
 
 /**
- * Auth service
+ * Auth service - Handles authentication, token generation, and logout
  */
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly tokenBlacklistService: TokenBlacklistService,
   ) {}
 
   /**
@@ -83,9 +87,21 @@ export class AuthService {
     );
   }
 
-  logout() {
-    // TODO: Implement token blacklist mechanism
-    return true;
+  /**
+   * Logout user by blacklisting their access token
+   * @param token - JWT access token to blacklist
+   * @returns Promise<boolean>
+   */
+  async logout(token: string): Promise<boolean> {
+    try {
+      await this.tokenBlacklistService.blacklistToken(token);
+      this.logger.log('User logged out successfully');
+      return true;
+    } catch (error) {
+      this.logger.error(`Logout error: ${error.message}`);
+      // Return true anyway - logout should succeed for user even if blacklist fails
+      return true;
+    }
   }
 
   /**
