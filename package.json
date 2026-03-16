@@ -101,6 +101,17 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "^bcrypt$": "<rootDir>/../__mocks__/bcrypt.js",
+      "^@modules/(.*)$": "<rootDir>/modules/$1",
+      "^@database/(.*)$": "<rootDir>/database/$1",
+      "^@decorators$": "<rootDir>/decorators",
+      "^@interceptors$": "<rootDir>/interceptors",
+      "^@shared/(.*)$": "<rootDir>/shared/$1",
+      "^@guards/(.*)$": "<rootDir>/guards/$1",
+      "^@app.service$": "<rootDir>/app.service",
+      "^@/(.*)$": "<rootDir>/$1"
+    }
   }
 }
