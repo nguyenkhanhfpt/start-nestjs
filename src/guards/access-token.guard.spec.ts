@@ -44,7 +44,9 @@ describe('AccessTokenGuard', () => {
     }).compile();
 
     reflector = module.get<Reflector>(Reflector);
-    tokenBlacklistService = module.get<TokenBlacklistService>(TokenBlacklistService);
+    tokenBlacklistService = module.get<TokenBlacklistService>(
+      TokenBlacklistService,
+    );
 
     // Create guard manually since it extends AuthGuard
     guard = new AccessTokenGuard(reflector, tokenBlacklistService);
@@ -70,26 +72,33 @@ describe('AccessTokenGuard', () => {
 
     it('should deny access if token is blacklisted', async () => {
       jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(false);
-      jest.spyOn(tokenBlacklistService, 'isTokenBlacklisted').mockResolvedValue(true);
+      jest
+        .spyOn(tokenBlacklistService, 'isTokenBlacklisted')
+        .mockResolvedValue(true);
 
       mockExecutionContext.switchToHttp = jest.fn().mockReturnValue({
         getRequest: jest.fn().mockReturnValue(mockRequest),
       });
 
       // Mock parent guard canActivate
-      jest.spyOn(guard as any, 'canActivate').mockImplementation(async (ctx: ExecutionContext) => {
-        const reflector = (ctx as ExecutionContext).switchToHttp().getRequest().reflector;
-        if (reflector) return true;
+      jest
+        .spyOn(guard as any, 'canActivate')
+        .mockImplementation(async (ctx: ExecutionContext) => {
+          const reflector = (ctx as ExecutionContext)
+            .switchToHttp()
+            .getRequest().reflector;
+          if (reflector) return true;
 
-        const request = (ctx as ExecutionContext).switchToHttp().getRequest();
-        const token = request.headers.authorization?.replace('Bearer ', '');
+          const request = (ctx as ExecutionContext).switchToHttp().getRequest();
+          const token = request.headers.authorization?.replace('Bearer ', '');
 
-        if (token) {
-          const isBlacklisted = await tokenBlacklistService.isTokenBlacklisted(token);
-          if (isBlacklisted) return false;
-        }
-        return true;
-      });
+          if (token) {
+            const isBlacklisted =
+              await tokenBlacklistService.isTokenBlacklisted(token);
+            if (isBlacklisted) return false;
+          }
+          return true;
+        });
 
       const context = mockExecutionContext as ExecutionContext;
       const result = await guard.canActivate(context);
