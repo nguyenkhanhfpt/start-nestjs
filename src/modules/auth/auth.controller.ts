@@ -14,6 +14,9 @@ import {
   ApiGetErrorsResponse,
   Public,
   User,
+  ThrottleLogin,
+  ThrottleRegister,
+  ThrottleRefresh,
 } from '@decorators';
 import { RefreshTokenGuard } from '@guards';
 import {
@@ -34,12 +37,17 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Public()
+  @ThrottleLogin()
   @Post('login')
   @ApiOperation({ summary: 'Login', description: 'User login endpoint' })
   @ApiResponse({
     status: 200,
     description: 'The user has been successfully logged in.',
     type: LoginResDto,
+  })
+  @ApiResponse({
+    status: 429,
+    description: 'Too many login attempts. Please try again later.',
   })
   @ApiBody({ type: LoginDto })
   @ApiErrorsResponse({
@@ -51,6 +59,7 @@ export class AuthController {
   }
 
   @Public()
+  @ThrottleRegister()
   @Post('register')
   @ApiOperation({ summary: 'Register', description: 'User register endpoint' })
   @ApiBody({ type: RegisterDto })
@@ -58,6 +67,10 @@ export class AuthController {
     status: 200,
     description: 'The user has been successfully registered.',
     type: LoginResDto,
+  })
+  @ApiResponse({
+    status: 429,
+    description: 'Too many registration attempts. Please try again later.',
   })
   @ApiErrorsResponse({
     excludeUnauthorized: true,
@@ -100,6 +113,7 @@ export class AuthController {
    * @param user
    */
   @Public()
+  @ThrottleRefresh()
   @UseGuards(RefreshTokenGuard)
   @Get('refresh')
   @ApiOperation({
@@ -110,6 +124,10 @@ export class AuthController {
     status: 200,
     description: 'The access token has been successfully refreshed.',
     type: GetTokenDto,
+  })
+  @ApiResponse({
+    status: 429,
+    description: 'Too many refresh attempts. Please try again later.',
   })
   @ApiGetErrorsResponse()
   @Serialize(GetTokenDto)

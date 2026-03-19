@@ -67,7 +67,9 @@ describe('TokenBlacklistService', () => {
 
     it('should handle Redis errors gracefully', async () => {
       jest.spyOn(jwtService, 'decode').mockReturnValue(mockDecodedToken as any);
-      jest.spyOn(redisService, 'set').mockRejectedValue(new Error('Redis error'));
+      jest
+        .spyOn(redisService, 'set')
+        .mockRejectedValue(new Error('Redis error'));
 
       // Should not throw
       await expect(service.blacklistToken(mockToken)).resolves.not.toThrow();
@@ -93,7 +95,9 @@ describe('TokenBlacklistService', () => {
     });
 
     it('should return false on Redis error', async () => {
-      jest.spyOn(redisService, 'get').mockRejectedValue(new Error('Redis error'));
+      jest
+        .spyOn(redisService, 'get')
+        .mockRejectedValue(new Error('Redis error'));
 
       const result = await service.isTokenBlacklisted(mockToken);
 
@@ -111,10 +115,14 @@ describe('TokenBlacklistService', () => {
     });
 
     it('should handle deletion errors', async () => {
-      jest.spyOn(redisService, 'del').mockRejectedValue(new Error('Delete error'));
+      jest
+        .spyOn(redisService, 'del')
+        .mockRejectedValue(new Error('Delete error'));
 
       // Should not throw
-      await expect(service.removeFromBlacklist(mockToken)).resolves.not.toThrow();
+      await expect(
+        service.removeFromBlacklist(mockToken),
+      ).resolves.not.toThrow();
     });
   });
 });

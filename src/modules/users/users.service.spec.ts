@@ -78,7 +78,9 @@ describe('UsersService', () => {
 
   describe('findOne', () => {
     it('should return a user by id', async () => {
-      jest.spyOn(mockUserRepository, 'findOneOrFail').mockResolvedValue(mockUser);
+      jest
+        .spyOn(mockUserRepository, 'findOneOrFail')
+        .mockResolvedValue(mockUser);
 
       const result = await service.findOne(1);
 

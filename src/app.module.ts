@@ -19,12 +19,26 @@ import { ClsModule } from 'nestjs-cls';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { DirectiveLocation, GraphQLDirective } from 'graphql';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       load: [databaseConfig, appConfig],
+    }),
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        throttlers: [
+          {
+            name: 'default',
+            ttl: configService.get<number>('app.throttle.ttl'),
+            limit: configService.get<number>('app.throttle.limit'),
+          },
+        ],
+      }),
     }),
     I18nModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({
@@ -67,6 +81,10 @@ import { DirectiveLocation, GraphQLDirective } from 'graphql';
   ],
   controllers: [AppController],
   providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
     {
       provide: APP_GUARD,
       useClass: AccessTokenGuard,

@@ -78,7 +78,9 @@ describe('AuthService', () => {
     service = module.get<AuthService>(AuthService);
     jwtService = module.get<JwtService>(JwtService);
     configService = module.get<ConfigService>(ConfigService);
-    tokenBlacklistService = module.get<TokenBlacklistService>(TokenBlacklistService);
+    tokenBlacklistService = module.get<TokenBlacklistService>(
+      TokenBlacklistService,
+    );
   });
 
   it('should be defined', () => {
@@ -112,7 +114,9 @@ describe('AuthService', () => {
         password: 'Password123',
       };
 
-      await expect(service.login(loginDto)).rejects.toThrow(BadRequestException);
+      await expect(service.login(loginDto)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('should throw BadRequestException for invalid password', async () => {
@@ -124,18 +128,24 @@ describe('AuthService', () => {
         password: 'WrongPassword123',
       };
 
-      await expect(service.login(loginDto)).rejects.toThrow(BadRequestException);
+      await expect(service.login(loginDto)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
   describe('logout', () => {
     it('should blacklist token on logout', async () => {
-      jest.spyOn(tokenBlacklistService, 'blacklistToken').mockResolvedValue(undefined);
+      jest
+        .spyOn(tokenBlacklistService, 'blacklistToken')
+        .mockResolvedValue(undefined);
 
       const result = await service.logout(mockToken);
 
       expect(result).toBe(true);
-      expect(tokenBlacklistService.blacklistToken).toHaveBeenCalledWith(mockToken);
+      expect(tokenBlacklistService.blacklistToken).toHaveBeenCalledWith(
+        mockToken,
+      );
     });
 
     it('should handle blacklist errors gracefully', async () => {
