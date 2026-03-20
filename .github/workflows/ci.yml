@@ -1,0 +1,16 @@
+name: CI
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  echo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run echo
+        run: |
+          echo "Pull request triggered: ${{ github.event_name }}"
+          echo "Action: ${{ github.action }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
