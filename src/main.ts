@@ -4,6 +4,7 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { NotFoundExceptionFilter } from '@filters/not-found-exception.filter';
 import { LoggerService } from '@modules/logger/logger.service';
 import { UnauthorizedExceptionFilter } from '@filters/unauthorized-exception.filter';
+import { ForbiddenExceptionFilter } from '@filters/forbidden-exception.filter';
 import { InternalServerExceptionFilter } from '@filters/internal-server-exception.filter';
 import { BadRequestExceptionFilter } from '@filters/bad-request-exception.filter';
 import {
@@ -78,6 +79,7 @@ async function bootstrap() {
     new BadRequestExceptionFilter(loggerService),
     new NotFoundExceptionFilter(loggerService),
     new UnauthorizedExceptionFilter(loggerService),
+    new ForbiddenExceptionFilter(loggerService),
   );
 
   // use global interceptors
