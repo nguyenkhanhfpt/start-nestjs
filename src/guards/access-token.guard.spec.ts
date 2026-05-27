@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import { ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AccessTokenGuard } from './access-token.guard';
 import { TokenBlacklistService } from '@modules/auth/services/token-blacklist.service';

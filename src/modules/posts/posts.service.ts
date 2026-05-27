@@ -1,9 +1,18 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PostEntity } from '@database/entities/post.entity';
 import { CreatePostDto } from './dto/req/create-post.dto';
 import { UpdatePostDto } from './dto/req/update-post.dto';
+import {
+  PaginationQueryDto,
+  PaginationMetaDto,
+  PaginatedResult,
+} from '@shared/dtos/pagination.dto';
 
 @Injectable()
 export class PostsService {
@@ -20,10 +29,20 @@ export class PostsService {
     return this.postRepository.save(post);
   }
 
-  async findAll() {
-    return this.postRepository.find({
+  async findAll(
+    query: PaginationQueryDto,
+  ): Promise<PaginatedResult<PostEntity>> {
+    const [items, total] = await this.postRepository.findAndCount({
       relations: ['user'],
+      skip: query.skip,
+      take: query.limit,
+      order: { createdAt: 'DESC' },
     });
+
+    return {
+      items,
+      meta: new PaginationMetaDto(total, query.page, query.limit),
+    };
   }
 
   async findOne(id: number) {
@@ -43,7 +62,9 @@ export class PostsService {
     const post = await this.findOne(id);
 
     if (post.userId !== userId) {
-      throw new ForbiddenException('You do not have permission to update this post');
+      throw new ForbiddenException(
+        'You do not have permission to update this post',
+      );
     }
 
     Object.assign(post, updatePostDto);
@@ -54,7 +75,9 @@ export class PostsService {
     const post = await this.findOne(id);
 
     if (post.userId !== userId) {
-      throw new ForbiddenException('You do not have permission to delete this post');
+      throw new ForbiddenException(
+        'You do not have permission to delete this post',
+      );
     }
 
     await this.postRepository.remove(post);

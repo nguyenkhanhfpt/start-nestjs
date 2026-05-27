@@ -7,7 +7,6 @@ import { PostEntity } from '@database/entities/post.entity';
 
 describe('UsersController', () => {
   let controller: UsersController;
-  let service: UsersService;
   let mockUserRepository: any;
   let mockPostRepository: any;
 
@@ -46,7 +45,6 @@ describe('UsersController', () => {
     }).compile();
 
     controller = module.get<UsersController>(UsersController);
-    service = module.get<UsersService>(UsersService);
   });
 
   it('should be defined', () => {

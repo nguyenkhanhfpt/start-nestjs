@@ -51,7 +51,12 @@ async function bootstrap() {
       infer: true,
     }),
     {
-      exclude: [{ method: RequestMethod.GET, path: '/' }],
+      // Exclude root path and /health* endpoints (liveness/readiness probes)
+      exclude: [
+        { method: RequestMethod.GET, path: '/' },
+        { method: RequestMethod.GET, path: 'health/liveness' },
+        { method: RequestMethod.GET, path: 'health/readiness' },
+      ],
     },
   );
 

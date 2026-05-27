@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
+import { PaginatedDto } from '@shared/dtos/pagination.dto';
 
 export class UserItemDto {
   @ApiProperty({
@@ -61,3 +62,5 @@ export class PostItemDto {
   @Type(() => UserItemDto)
   user: UserItemDto;
 }
+
+export class PaginatedPostsDto extends PaginatedDto(PostItemDto) {}

@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -18,8 +19,10 @@ import {
   ApiParam,
 } from '@nestjs/swagger';
 import { ApiErrorsResponse, ApiGetErrorsResponse } from '@decorators';
-import { GetUserPostsResDto } from './dto/get-user-posts-res.dto';
+import { PaginatedUserPostsDto } from './dto/get-user-posts-res.dto';
+import { UserItemDto, PaginatedUsersDto } from './dto/res/user-res.dto';
 import { Serialize } from '@interceptors';
+import { PaginationQueryDto } from '@shared/dtos/pagination.dto';
 
 @ApiBearerAuth()
 @ApiTags('Users')
@@ -32,18 +35,25 @@ export class UsersController {
   @ApiResponse({
     status: 201,
     description: 'User has been successfully created.',
+    type: UserItemDto,
   })
   @ApiErrorsResponse()
-  create(@Body() createUserDto: CreateUserDto) {
+  @Serialize(UserItemDto)
+  create(@Body() createUserDto: CreateUserDto): Promise<UserItemDto> {
     return this.usersService.create(createUserDto);
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all users' })
-  @ApiResponse({ status: 200, description: 'Returns a list of all users.' })
+  @ApiOperation({ summary: 'Get all users (paginated)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns a paginated list of users.',
+    type: PaginatedUsersDto,
+  })
   @ApiGetErrorsResponse()
-  async findAll() {
-    return this.usersService.findAll();
+  @Serialize(PaginatedUsersDto)
+  findAll(@Query() query: PaginationQueryDto): Promise<PaginatedUsersDto> {
+    return this.usersService.findAll(query) as any;
   }
 
   @Get(':id')
@@ -52,10 +62,12 @@ export class UsersController {
   @ApiResponse({
     status: 200,
     description: 'Returns the user with the specified ID.',
+    type: UserItemDto,
   })
   @ApiGetErrorsResponse()
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+  @Serialize(UserItemDto)
+  findOne(@Param('id') id: string): Promise<UserItemDto> {
+    return this.usersService.findOne(+id) as any;
   }
 
   @Patch(':id')
@@ -64,9 +76,14 @@ export class UsersController {
   @ApiResponse({
     status: 200,
     description: 'User has been successfully updated.',
+    type: UserItemDto,
   })
   @ApiErrorsResponse()
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  @Serialize(UserItemDto)
+  update(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ): Promise<UserItemDto> {
     return this.usersService.update(+id, updateUserDto);
   }
 
@@ -76,22 +93,27 @@ export class UsersController {
   @ApiResponse({
     status: 200,
     description: 'User has been successfully deleted.',
+    schema: { example: { id: 1 } },
   })
   @ApiGetErrorsResponse()
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: string): Promise<{ id: number }> {
     return this.usersService.remove(+id);
   }
 
   @Get(':id/posts')
-  @ApiOperation({ summary: 'Get all posts by user' })
+  @ApiOperation({ summary: 'Get all posts by user (paginated)' })
+  @ApiParam({ name: 'id', description: 'User ID', example: '1' })
   @ApiResponse({
     status: 200,
-    description: 'Returns a list of all posts by user.',
-    type: [GetUserPostsResDto],
+    description: 'Returns a paginated list of posts by user.',
+    type: PaginatedUserPostsDto,
   })
   @ApiGetErrorsResponse()
-  @Serialize(GetUserPostsResDto)
-  async findAllPosts(@Param('id') id: number): Promise<GetUserPostsResDto[]> {
-    return this.usersService.findAllPosts(id);
+  @Serialize(PaginatedUserPostsDto)
+  findAllPosts(
+    @Param('id') id: number,
+    @Query() query: PaginationQueryDto,
+  ): Promise<PaginatedUserPostsDto> {
+    return this.usersService.findAllPosts(id, query) as any;
   }
 }
