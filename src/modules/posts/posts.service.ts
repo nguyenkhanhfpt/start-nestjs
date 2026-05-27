@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PostEntity } from '@database/entities/post.entity';
@@ -43,7 +43,7 @@ export class PostsService {
     const post = await this.findOne(id);
 
     if (post.userId !== userId) {
-      throw new NotFoundException('Post not found');
+      throw new ForbiddenException('You do not have permission to update this post');
     }
 
     Object.assign(post, updatePostDto);
@@ -54,7 +54,7 @@ export class PostsService {
     const post = await this.findOne(id);
 
     if (post.userId !== userId) {
-      throw new NotFoundException('Post not found');
+      throw new ForbiddenException('You do not have permission to delete this post');
     }
 
     await this.postRepository.remove(post);

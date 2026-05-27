@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Headers,
   Post,
   UseGuards,
   Request,
@@ -22,6 +23,7 @@ import { RefreshTokenGuard } from '@guards';
 import {
   ApiBearerAuth,
   ApiBody,
+  ApiHeader,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -82,15 +84,23 @@ export class AuthController {
 
   @Get('logout')
   @ApiOperation({ summary: 'Logout', description: 'User logout endpoint' })
+  @ApiHeader({
+    name: 'x-refresh-token',
+    description: 'Refresh token to invalidate on logout',
+    required: false,
+  })
   @ApiResponse({
     status: 200,
     description: 'The user has been successfully logged out.',
     type: Boolean,
   })
   @ApiGetErrorsResponse()
-  async logout(@Request() request: any): Promise<boolean> {
-    const token = this.extractTokenFromHeader(request);
-    return this.authService.logout(token);
+  async logout(
+    @Request() request: any,
+    @Headers('x-refresh-token') refreshToken?: string,
+  ): Promise<boolean> {
+    const accessToken = this.extractTokenFromHeader(request);
+    return this.authService.logout(accessToken, refreshToken);
   }
 
   /**

@@ -60,7 +60,7 @@ export class TokenBlacklistService {
       const key = `${this.BLACKLIST_PREFIX}${token}`;
       const result = await this.redisService.get(key);
 
-      return result === true;
+      return result !== null && result !== undefined;
     } catch (error) {
       this.logger.error(`Error checking token blacklist: ${error.message}`);
       // On Redis error, allow token (fail open) to avoid lockout

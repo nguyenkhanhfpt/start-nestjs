@@ -88,18 +88,22 @@ export class AuthService {
   }
 
   /**
-   * Logout user by blacklisting their access token
-   * @param token - JWT access token to blacklist
+   * Logout user by blacklisting both access and refresh tokens
+   * @param accessToken - JWT access token to blacklist
+   * @param refreshToken - JWT refresh token to blacklist (optional)
    * @returns Promise<boolean>
    */
-  async logout(token: string): Promise<boolean> {
+  async logout(accessToken: string, refreshToken?: string): Promise<boolean> {
     try {
-      await this.tokenBlacklistService.blacklistToken(token);
+      const tasks = [this.tokenBlacklistService.blacklistToken(accessToken)];
+      if (refreshToken) {
+        tasks.push(this.tokenBlacklistService.blacklistToken(refreshToken));
+      }
+      await Promise.all(tasks);
       this.logger.log('User logged out successfully');
       return true;
     } catch (error) {
       this.logger.error(`Logout error: ${error.message}`);
-      // Return true anyway - logout should succeed for user even if blacklist fails
       return true;
     }
   }
