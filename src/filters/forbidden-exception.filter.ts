@@ -13,7 +13,9 @@ import { t } from '@shared/utils';
 import type { Response } from 'express';
 
 @Catch(ForbiddenException)
-export class ForbiddenExceptionFilter implements ExceptionFilter<HttpException> {
+export class ForbiddenExceptionFilter
+  implements ExceptionFilter<HttpException>
+{
   constructor(private readonly loggerService: LoggerService) {}
 
   catch(exception: HttpException, host: ArgumentsHost) {

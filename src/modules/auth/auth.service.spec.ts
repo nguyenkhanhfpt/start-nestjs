@@ -16,7 +16,6 @@ jest.mock('@shared/utils', () => ({
 describe('AuthService', () => {
   let service: AuthService;
   let jwtService: JwtService;
-  let configService: ConfigService;
   let tokenBlacklistService: TokenBlacklistService;
   let mockUserRepository: any;
 
@@ -77,7 +76,6 @@ describe('AuthService', () => {
 
     service = module.get<AuthService>(AuthService);
     jwtService = module.get<JwtService>(JwtService);
-    configService = module.get<ConfigService>(ConfigService);
     tokenBlacklistService = module.get<TokenBlacklistService>(
       TokenBlacklistService,
     );

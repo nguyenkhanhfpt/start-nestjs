@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
+import { PaginatedDto } from '@shared/dtos/pagination.dto';
 
 export class GetUserPostsResDto {
   @ApiProperty({ example: 1, description: 'Post ID' })
@@ -24,3 +25,5 @@ export class GetUserPostsResDto {
   @Expose()
   createdAt: string;
 }
+
+export class PaginatedUserPostsDto extends PaginatedDto(GetUserPostsResDto) {}

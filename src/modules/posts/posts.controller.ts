@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { UpdatePostDto } from './dto/req/update-post.dto';
@@ -20,8 +21,9 @@ import {
 } from '@nestjs/swagger';
 import { ApiErrorsResponse, ApiGetErrorsResponse } from '@decorators';
 import { CreatePostDto } from './dto/req/create-post.dto';
-import { PostItemDto } from './dto/res/post-res.dto';
+import { PostItemDto, PaginatedPostsDto } from './dto/res/post-res.dto';
 import { Serialize } from '@interceptors';
+import { PaginationQueryDto } from '@shared/dtos/pagination.dto';
 
 @ApiBearerAuth()
 @ApiTags('Posts')
@@ -44,16 +46,16 @@ export class PostsController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all posts' })
+  @ApiOperation({ summary: 'Get all posts (paginated)' })
   @ApiResponse({
     status: 200,
-    description: 'Returns a list of all posts.',
-    type: [PostItemDto],
+    description: 'Returns a paginated list of posts.',
+    type: PaginatedPostsDto,
   })
   @ApiGetErrorsResponse()
-  @Serialize(PostItemDto)
-  findAll(): Promise<PostItemDto[]> {
-    return this.postsService.findAll();
+  @Serialize(PaginatedPostsDto)
+  findAll(@Query() query: PaginationQueryDto): Promise<PaginatedPostsDto> {
+    return this.postsService.findAll(query) as any;
   }
 
   @Get(':id')

@@ -20,6 +20,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { DirectiveLocation, GraphQLDirective } from 'graphql';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { HealthModule } from '@modules/health/health.module';
 
 @Module({
   imports: [
@@ -78,6 +79,7 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
     AuthModule,
     QueueModule,
     PostsModule,
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [
