@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Version, VERSION_NEUTRAL } from '@nestjs/common';
 import { AppService } from '@app.service';
 import { Public } from '@decorators';
 
@@ -8,6 +8,7 @@ export class AppController {
 
   @Public()
   @Get()
+  @Version(VERSION_NEUTRAL)
   getHello(): string {
     return this.appService.getHello();
   }

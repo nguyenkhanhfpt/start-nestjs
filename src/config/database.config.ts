@@ -15,7 +15,9 @@ export default registerAs('database', (): DataSourceOptions => {
   };
 
   if (isSQLite) {
-    console.warn('⚠️  Using SQLite database. This is not recommended for production use.');
+    console.warn(
+      '⚠️  Using SQLite database. This is not recommended for production use.',
+    );
     return {
       ...commonOptions,
       type: 'better-sqlite3',
