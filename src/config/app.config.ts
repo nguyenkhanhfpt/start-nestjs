@@ -13,6 +13,7 @@ export default registerAs('app', () => ({
     port: parseInt(process.env.QUEUE_PORT, 10),
     password: process.env.QUEUE_PASSWORD,
   },
+  cacheDriver: process.env.CACHE_DRIVER || 'memory',
   redis: {
     host: process.env.REDIS_HOST,
     port: parseInt(process.env.REDIS_PORT, 10),

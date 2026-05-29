@@ -9,13 +9,23 @@ import { CacheModule } from '@nestjs/cache-manager';
     CacheModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
-        store: redisStore,
-        host: configService.get('app.redis.host'),
-        port: configService.get('app.redis.port'),
-        ttl: configService.get('app.redis.ttl'),
-        password: configService.get('app.redis.password'),
-      }),
+      useFactory: async (configService: ConfigService) => {
+        const driver = configService.get<string>('app.cacheDriver');
+
+        if (driver === 'redis') {
+          return {
+            store: redisStore,
+            host: configService.get('app.redis.host'),
+            port: configService.get('app.redis.port'),
+            ttl: configService.get('app.redis.ttl'),
+            password: configService.get('app.redis.password'),
+          };
+        }
+        
+        return {
+          ttl: configService.get('app.redis.ttl') ?? 3600,
+        };
+      },
     }),
   ],
   providers: [RedisService],
