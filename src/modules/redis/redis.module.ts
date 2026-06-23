@@ -21,7 +21,7 @@ import { CacheModule } from '@nestjs/cache-manager';
             password: configService.get('app.redis.password'),
           };
         }
-        
+
         return {
           ttl: configService.get('app.redis.ttl') ?? 3600,
         };
