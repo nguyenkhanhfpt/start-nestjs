@@ -5,12 +5,57 @@ on:
     types: [opened, synchronize]
 
 jobs:
-  echo:
+  test:
     runs-on: ubuntu-latest
+    container:
+      image: node:20-alpine
+
+    services:
+      database:
+        image: postgres:15
+        env:
+          POSTGRES_DB: postgres
+          POSTGRES_USER: postgres_user
+          POSTGRES_PASSWORD: secret
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis/redis-stack:latest
+        env:
+          REDIS_ARGS: "--requirepass redispass"
+        options: >-
+          --health-cmd "redis-cli -a redispass ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
-      - name: Run echo
-        run: |
-          echo "Pull request triggered: ${{ github.event_name }}"
-          echo "Action: ${{ github.action }}"
-          echo "Branch: ${{ github.ref_name }}"
-          echo "Commit: ${{ github.sha }}"
+      - uses: actions/checkout@v4
+
+      - name: Cache node_modules
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: node-modules-${{ hashFiles('package-lock.json') }}
+
+      - name: Install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+        env:
+          DATABASE_DRIVER: postgres
+          DATABASE_HOST: database
+          DATABASE_PORT: 5432
+          DATABASE_NAME: postgres
+          DATABASE_USER: postgres_user
+          DATABASE_PASSWORD: secret
+          REDIS_HOST: redis
+          REDIS_PORT: 6379
+          REDIS_PASSWORD: redispass
