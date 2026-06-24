@@ -77,7 +77,9 @@ describe('UsersService', () => {
 
   describe('create', () => {
     it('should hash password, save user, and return UserItemDto', async () => {
-      (sharedUtils.hashPassword as jest.Mock).mockResolvedValue('hashed_password');
+      (sharedUtils.hashPassword as jest.Mock).mockResolvedValue(
+        'hashed_password',
+      );
       mockUserRepository.save.mockResolvedValue(mockUser);
 
       const createUserDto = {
@@ -131,7 +133,9 @@ describe('UsersService', () => {
       const result = await service.findOne(1);
 
       expect(result).toEqual(mockUser);
-      expect(mockUserRepository.findOne).toHaveBeenCalledWith({ where: { id: 1 } });
+      expect(mockUserRepository.findOne).toHaveBeenCalledWith({
+        where: { id: 1 },
+      });
     });
 
     it('should throw NotFoundException when user with given id does not exist', async () => {
@@ -170,7 +174,9 @@ describe('UsersService', () => {
     it('should throw NotFoundException when updating a non-existent user', async () => {
       mockUserRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.update(999, {} as any)).rejects.toThrow(NotFoundException);
+      await expect(service.update(999, {} as any)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -228,7 +234,10 @@ describe('UsersService', () => {
       expect(result.items[0]).toHaveProperty('title', 'Test Post');
       expect(typeof result.items[0].createdAt).toBe('string');
       expect(result.meta).toMatchObject({ total: 1, page: 1, limit: 10 });
-      expect(mockQueryBuilder.where).toHaveBeenCalledWith('p.userId = :userId', { userId: 1 });
+      expect(mockQueryBuilder.where).toHaveBeenCalledWith(
+        'p.userId = :userId',
+        { userId: 1 },
+      );
     });
 
     it('should return empty items when user has no posts', async () => {

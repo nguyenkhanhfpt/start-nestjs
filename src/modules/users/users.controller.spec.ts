@@ -95,7 +95,9 @@ describe('UsersController', () => {
         new NotFoundException('User with ID "999" not found'),
       );
 
-      await expect(controller.findOne('999')).rejects.toThrow(NotFoundException);
+      await expect(controller.findOne('999')).rejects.toThrow(
+        NotFoundException,
+      );
       expect(usersService.findOne).toHaveBeenCalledWith(999);
     });
   });
@@ -145,7 +147,14 @@ describe('UsersController', () => {
   describe('findAllPosts', () => {
     it('should return paginated list of posts for a user', async () => {
       const mockPaginatedPosts = {
-        items: [{ id: 1, title: 'Post 1', content: 'Content', createdAt: new Date().toISOString() }],
+        items: [
+          {
+            id: 1,
+            title: 'Post 1',
+            content: 'Content',
+            createdAt: new Date().toISOString(),
+          },
+        ],
         meta: { total: 1, page: 1, limit: 10, totalPages: 1 },
       };
       mockUsersService.findAllPosts.mockResolvedValue(mockPaginatedPosts);
