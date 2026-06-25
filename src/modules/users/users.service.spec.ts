@@ -16,8 +16,13 @@ describe('UsersService', () => {
   const mockUser = {
     id: 1,
     name: 'Test User',
+    username: 'test_user',
     email: 'test@example.com',
     password: 'hashed_password',
+    avatar: 'default.jpg',
+    bio: 'A short bio',
+    phone: '+84912345678',
+    isActive: true,
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -84,6 +89,7 @@ describe('UsersService', () => {
 
       const createUserDto = {
         name: 'Test User',
+        username: 'test_user',
         email: 'test@example.com',
         password: 'Password123',
       };
@@ -96,6 +102,7 @@ describe('UsersService', () => {
       );
       expect(result).toHaveProperty('id', 1);
       expect(result).toHaveProperty('email', 'test@example.com');
+      expect(result).toHaveProperty('username', 'test_user');
     });
   });
 

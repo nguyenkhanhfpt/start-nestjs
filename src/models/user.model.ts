@@ -8,6 +8,21 @@ export class User {
   @Field()
   name: string;
 
+  @Field({ nullable: true })
+  username?: string;
+
   @Field()
   email: string;
+
+  @Field()
+  avatar: string;
+
+  @Field({ nullable: true })
+  bio?: string;
+
+  @Field({ nullable: true })
+  phone?: string;
+
+  @Field(() => Boolean)
+  isActive: boolean;
 }

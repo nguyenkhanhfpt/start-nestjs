@@ -1,6 +1,12 @@
 import { PostEntity } from '@database/entities/post.entity';
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, MinLength, MaxLength } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 export class CreatePostDto {
   public static readonly resource = PostEntity.name;
@@ -24,4 +30,13 @@ export class CreatePostDto {
   @MinLength(10)
   @MaxLength(10000)
   content: string;
+
+  @ApiPropertyOptional({
+    description: 'Thumbnail filename',
+    example: 'thumbnail.jpg',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  thumbnail?: string;
 }

@@ -1,4 +1,11 @@
-import { Controller, Get, Version, VERSION_NEUTRAL } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Version,
+  VERSION_NEUTRAL,
+} from '@nestjs/common';
 import { AppService } from '@app.service';
 import { Public } from '@decorators';
 
@@ -11,5 +18,12 @@ export class AppController {
   @Version(VERSION_NEUTRAL)
   getHello(): string {
     return this.appService.getHello();
+  }
+
+  @Public()
+  @Get('trigger-posts/:count')
+  @Version(VERSION_NEUTRAL)
+  triggerCreatePosts(@Param('count', ParseIntPipe) count: number) {
+    return this.appService.triggerCreatePosts(count);
   }
 }

@@ -11,7 +11,12 @@ describe('UsersController', () => {
   const mockUser = {
     id: 1,
     name: 'Test User',
+    username: 'test_user',
     email: 'test@example.com',
+    avatar: 'default.jpg',
+    bio: 'A short bio',
+    phone: '+84912345678',
+    isActive: true,
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -57,6 +62,7 @@ describe('UsersController', () => {
 
       const createUserDto = {
         name: 'Test User',
+        username: 'test_user',
         email: 'test@example.com',
         password: 'Password123',
       };

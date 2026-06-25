@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import { InjectQueue } from '@nestjs/bullmq';
-import { DEFAULT_QUEUE_NAME } from '@shared/constants';
+import { DEFAULT_QUEUE_NAME, JOB_NAME } from '@shared/constants';
 import { t } from '@shared/utils';
 import { Query } from '@nestjs/graphql';
 
@@ -12,5 +12,14 @@ export class AppService {
   @Query(() => String)
   getHello(): string {
     return t('common.hello');
+  }
+
+  // Pushes a SEED_POSTS job onto the queue so the worker creates `count` posts asynchronously.
+  async triggerCreatePosts(count: number): Promise<{ jobId: string }> {
+    const job = await this.queue.add(JOB_NAME.SEED_POSTS, {
+      count,
+      userId: 1,
+    });
+    return { jobId: job.id };
   }
 }

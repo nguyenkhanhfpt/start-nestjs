@@ -12,6 +12,15 @@ export class Post {
   @Field()
   content: string;
 
+  @Field()
+  thumbnail: string;
+
+  @Field(() => Int)
+  likeCount: number;
+
+  @Field(() => Int)
+  commentCount: number;
+
   @Field(() => Int)
   userId: number;
 

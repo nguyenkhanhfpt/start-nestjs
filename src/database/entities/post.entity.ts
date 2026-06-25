@@ -10,6 +10,15 @@ export class PostEntity extends BaseEntity {
   @Column('text')
   content: string;
 
+  @Column({ name: 'like_count', type: 'int', default: 0 })
+  likeCount: number;
+
+  @Column({ name: 'comment_count', type: 'int', default: 0 })
+  commentCount: number;
+
+  @Column({ type: 'varchar', default: 'default.jpg' })
+  thumbnail: string;
+
   @Column({ name: 'user_id' })
   userId: number;
 

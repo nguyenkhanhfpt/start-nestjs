@@ -3,17 +3,11 @@ import { Expose, Type } from 'class-transformer';
 import { PaginatedDto } from '@shared/dtos/pagination.dto';
 
 export class UserItemDto {
-  @ApiProperty({
-    description: 'ID of the user',
-    example: 1,
-  })
+  @ApiProperty({ description: 'ID of the user', example: 1 })
   @Expose()
   id: number;
 
-  @ApiProperty({
-    description: 'Name of the user',
-    example: 'John Doe',
-  })
+  @ApiProperty({ description: 'Name of the user', example: 'John Doe' })
   @Expose()
   name: string;
 
@@ -26,17 +20,11 @@ export class UserItemDto {
 }
 
 export class PostItemDto {
-  @ApiProperty({
-    description: 'ID of the post',
-    example: 1,
-  })
+  @ApiProperty({ description: 'ID of the post', example: 1 })
   @Expose()
   id: number;
 
-  @ApiProperty({
-    description: 'Title of the post',
-    example: 'My First Post',
-  })
+  @ApiProperty({ description: 'Title of the post', example: 'My First Post' })
   @Expose()
   title: string;
 
@@ -46,6 +34,18 @@ export class PostItemDto {
   })
   @Expose()
   content: string;
+
+  @ApiProperty({ description: 'Thumbnail filename', example: 'default.jpg' })
+  @Expose()
+  thumbnail: string;
+
+  @ApiProperty({ description: 'Number of likes', example: 0 })
+  @Expose()
+  likeCount: number;
+
+  @ApiProperty({ description: 'Number of comments', example: 0 })
+  @Expose()
+  commentCount: number;
 
   @ApiProperty({
     description: 'ID of the user who created the post',
@@ -61,6 +61,10 @@ export class PostItemDto {
   @Expose()
   @Type(() => UserItemDto)
   user: UserItemDto;
+
+  @ApiProperty({ example: '2024-01-01T00:00:00Z', description: 'Created at' })
+  @Expose()
+  createdAt: Date;
 }
 
 export class PaginatedPostsDto extends PaginatedDto(PostItemDto) {}
