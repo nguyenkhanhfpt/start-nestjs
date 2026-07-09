@@ -9,8 +9,8 @@ import {
   Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { CreateUserDto } from './dto/req/create-user.dto';
+import { UpdateUserDto } from './dto/req/update-user.dto';
 import {
   ApiBearerAuth,
   ApiTags,
@@ -19,7 +19,7 @@ import {
   ApiParam,
 } from '@nestjs/swagger';
 import { ApiErrorsResponse, ApiGetErrorsResponse } from '@decorators';
-import { PaginatedUserPostsDto } from './dto/get-user-posts-res.dto';
+import { PaginatedUserPostsDto } from './dto/res/get-user-posts-res.dto';
 import { UserItemDto, PaginatedUsersDto } from './dto/res/user-res.dto';
 import { Serialize } from '@interceptors';
 import { PaginationQueryDto } from '@shared/dtos/pagination.dto';

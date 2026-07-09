@@ -1,1 +1,63 @@
-{}
+{
+  "E4001": "Email hoặc mật khẩu không chính xác",
+  "E4002": "Tên đăng nhập đã tồn tại",
+  "E4003": "Email đã tồn tại",
+  "userEntity": {
+    "name": {
+      "isNotEmpty": "Tên không được để trống",
+      "minLength": "Tên phải có ít nhất 2 ký tự",
+      "maxLength": "Tên không được vượt quá 100 ký tự"
+    },
+    "username": {
+      "isNotEmpty": "Tên đăng nhập không được để trống",
+      "minLength": "Tên đăng nhập phải có ít nhất 3 ký tự",
+      "maxLength": "Tên đăng nhập không được vượt quá 50 ký tự",
+      "matches": "Tên đăng nhập chỉ được chứa chữ cái, số và dấu gạch dưới",
+      "isExistUsername": "Tên đăng nhập đã tồn tại"
+    },
+    "email": {
+      "isNotEmpty": "Email không được để trống",
+      "isEmail": "Email không đúng định dạng",
+      "maxLength": "Email không được vượt quá 255 ký tự",
+      "isExistEmail": "Email đã tồn tại"
+    },
+    "password": {
+      "isNotEmpty": "Mật khẩu không được để trống",
+      "minLength": "Mật khẩu phải có ít nhất 6 ký tự",
+      "maxLength": "Mật khẩu không được vượt quá 128 ký tự",
+      "matches": "Mật khẩu phải chứa ít nhất một chữ hoa, một chữ thường và một chữ số"
+    },
+    "avatar": {
+      "isString": "Ảnh đại diện phải là chuỗi ký tự",
+      "maxLength": "Ảnh đại diện không được vượt quá 255 ký tự"
+    },
+    "bio": {
+      "isString": "Tiểu sử phải là chuỗi ký tự",
+      "maxLength": "Tiểu sử không được vượt quá 500 ký tự"
+    },
+    "phone": {
+      "isString": "Số điện thoại phải là chuỗi ký tự",
+      "maxLength": "Số điện thoại không được vượt quá 20 ký tự",
+      "matches": "Số điện thoại không đúng định dạng"
+    }
+  },
+  "postEntity": {
+    "title": {
+      "isNotEmpty": "Tiêu đề không được để trống",
+      "isString": "Tiêu đề phải là chuỗi ký tự",
+      "minLength": "Tiêu đề phải có ít nhất 3 ký tự",
+      "maxLength": "Tiêu đề không được vượt quá 255 ký tự"
+    },
+    "content": {
+      "isNotEmpty": "Nội dung không được để trống",
+      "isString": "Nội dung phải là chuỗi ký tự",
+      "minLength": "Nội dung phải có ít nhất 10 ký tự",
+      "maxLength": "Nội dung không được vượt quá 10000 ký tự"
+    },
+    "thumbnail": {
+      "isString": "Ảnh thumbnail phải là chuỗi ký tự",
+      "maxLength": "Ảnh thumbnail không được vượt quá 255 ký tự"
+    }
+  }
+}
+

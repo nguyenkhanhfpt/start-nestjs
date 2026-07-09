@@ -7,6 +7,8 @@ import {
 } from 'class-validator';
 import { UserEntity } from '@database/entities/user.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsExistEmail, IsExistUsername } from '@shared/validators';
+import { ValidateConstant } from '@shared/constants/validate.constant';
 
 export class RegisterDto {
   public static resource = UserEntity.name;
@@ -21,12 +23,26 @@ export class RegisterDto {
   name: string;
 
   @ApiProperty({
+    description: 'Unique username (letters, numbers, underscores)',
+    example: 'john_doe',
+  })
+  @IsExistUsername()
+  @Matches(ValidateConstant.REGEX_USERNAME, {
+    message: 'Username can only contain letters, numbers, and underscores',
+  })
+  @MinLength(3)
+  @MaxLength(50)
+  @IsNotEmpty()
+  username: string;
+
+  @ApiProperty({
     description: 'Email of the user',
     example: 'abc@gmail.com',
   })
-  @IsNotEmpty()
+  @IsExistEmail()
   @IsEmail()
   @MaxLength(255)
+  @IsNotEmpty()
   email: string;
 
   @ApiProperty({

@@ -41,11 +41,14 @@ export class BadRequestExceptionFilter implements ExceptionFilter {
         );
       }
     } else if (messages) {
+      const { code } = exceptionRes as BadRequestErrorDto;
+
       errors.push({
         resource: undefined,
         field: undefined,
-        code: undefined,
-        message: JSON.stringify(messages),
+        code,
+        message:
+          typeof messages === 'string' ? messages : JSON.stringify(messages),
       });
     } else {
       const { resource, field, code } = exceptionRes as BadRequestErrorDto;
