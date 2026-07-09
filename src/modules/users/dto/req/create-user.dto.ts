@@ -8,9 +8,13 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { IsExistEmail } from '@shared/validators';
+import { IsExistEmail, IsExistUsername } from '@shared/validators';
+import { UserEntity } from '@database/entities/user.entity';
+import { ValidateConstant } from '@shared/constants/validate.constant';
 
 export class CreateUserDto {
+  public static resource = UserEntity.name;
+
   @ApiProperty({ description: 'Full name of the user', example: 'John Doe' })
   @IsNotEmpty()
   @MinLength(2)
@@ -21,19 +25,20 @@ export class CreateUserDto {
     description: 'Unique username (letters, numbers, underscores)',
     example: 'john_doe',
   })
-  @IsNotEmpty()
-  @MinLength(3)
-  @MaxLength(50)
-  @Matches(/^[a-zA-Z0-9_]+$/, {
+  @IsExistUsername()
+  @Matches(ValidateConstant.REGEX_USERNAME, {
     message: 'Username can only contain letters, numbers, and underscores',
   })
+  @MinLength(3)
+  @MaxLength(50)
+  @IsNotEmpty()
   username: string;
 
   @ApiProperty({ description: 'Email address', example: 'john@example.com' })
-  @IsNotEmpty()
+  @IsExistEmail()
   @IsEmail()
   @MaxLength(255)
-  @IsExistEmail()
+  @IsNotEmpty()
   email: string;
 
   @ApiProperty({

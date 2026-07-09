@@ -11,6 +11,7 @@ import * as authUtils from '@shared/utils';
 jest.mock('@shared/utils', () => ({
   comparePassword: jest.fn(),
   hashPassword: jest.fn(),
+  t: jest.fn((key: string) => key),
 }));
 
 describe('AuthService', () => {

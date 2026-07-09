@@ -3,15 +3,64 @@
   "E403": "Not permission",
   "E404": "Resource not found",
   "E500": "Internal error",
+  "E4001": "Invalid credentials",
+  "E4002": "Username already exists",
+  "E4003": "Email already exists",
   "userEntity": {
     "name": {
-      "isNotEmpty": "Name is required"
+      "isNotEmpty": "Name is required",
+      "minLength": "Name must be at least 2 characters long",
+      "maxLength": "Name must be at most 100 characters long"
+    },
+    "username": {
+      "isNotEmpty": "Username is required",
+      "minLength": "Username must be at least 3 characters long",
+      "maxLength": "Username must be at most 50 characters long",
+      "matches": "Username can only contain letters, numbers, and underscores",
+      "isExistUsername": "Username already exists"
     },
     "email": {
-      "isNotEmpty": "Email is required"
+      "isNotEmpty": "Email is required",
+      "isEmail": "Email must be a valid email address",
+      "maxLength": "Email must be at most 255 characters long",
+      "isExistEmail": "Email already exists"
     },
     "password": {
-      "isNotEmpty": "Password is required"
+      "isNotEmpty": "Password is required",
+      "minLength": "Password must be at least 6 characters long",
+      "maxLength": "Password must be at most 128 characters long",
+      "matches": "Password must contain at least one uppercase letter, one lowercase letter, and one number"
+    },
+    "avatar": {
+      "isString": "Avatar must be a string",
+      "maxLength": "Avatar must be at most 255 characters long"
+    },
+    "bio": {
+      "isString": "Bio must be a string",
+      "maxLength": "Bio must be at most 500 characters long"
+    },
+    "phone": {
+      "isString": "Phone must be a string",
+      "maxLength": "Phone must be at most 20 characters long",
+      "matches": "Invalid phone number format"
+    }
+  },
+  "postEntity": {
+    "title": {
+      "isNotEmpty": "Title is required",
+      "isString": "Title must be a string",
+      "minLength": "Title must be at least 3 characters long",
+      "maxLength": "Title must be at most 255 characters long"
+    },
+    "content": {
+      "isNotEmpty": "Content is required",
+      "isString": "Content must be a string",
+      "minLength": "Content must be at least 10 characters long",
+      "maxLength": "Content must be at most 10000 characters long"
+    },
+    "thumbnail": {
+      "isString": "Thumbnail must be a string",
+      "maxLength": "Thumbnail must be at most 255 characters long"
     }
   }
 }

@@ -6,7 +6,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '@database/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { comparePassword, hashPassword } from '@shared/utils';
+import { comparePassword, hashPassword, t } from '@shared/utils';
+import { errorCodeConstant } from '@shared/constants/error-code.constant';
 import { JwtPayload } from '@modules/auth/strategies/access-token.strategy';
 import { GetTokenDto, LoginResDto } from './dtos/res/login-res.dto';
 import { GetUserResDto } from './dtos/res';
@@ -39,7 +40,10 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new BadRequestException('Invalid credentials');
+      throw new BadRequestException({
+        code: errorCodeConstant.invalidCredentials,
+        message: t(`error.${errorCodeConstant.invalidCredentials}`),
+      });
     }
 
     const isPasswordMatch = await comparePassword(
@@ -48,7 +52,10 @@ export class AuthService {
     );
 
     if (!isPasswordMatch) {
-      throw new BadRequestException('Invalid credentials');
+      throw new BadRequestException({
+        code: errorCodeConstant.invalidCredentials,
+        message: t(`error.${errorCodeConstant.invalidCredentials}`),
+      });
     }
 
     const tokens = await this.getTokens(user);
@@ -72,7 +79,6 @@ export class AuthService {
   async register(registerDto: RegisterDto): Promise<LoginResDto> {
     registerDto.password = await hashPassword(registerDto.password);
     const user = await this.userRepository.save(registerDto);
-
     const tokens = await this.getTokens(user);
 
     return plainToInstance(
@@ -96,9 +102,11 @@ export class AuthService {
   async logout(accessToken: string, refreshToken?: string): Promise<boolean> {
     try {
       const tasks = [this.tokenBlacklistService.blacklistToken(accessToken)];
+
       if (refreshToken) {
         tasks.push(this.tokenBlacklistService.blacklistToken(refreshToken));
       }
+
       await Promise.all(tasks);
       this.logger.log('User logged out successfully');
       return true;

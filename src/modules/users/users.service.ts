@@ -1,18 +1,23 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { CreateUserDto } from './dto/req/create-user.dto';
+import { UpdateUserDto } from './dto/req/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '@database/entities/user.entity';
 import { FindOptionsWhere, Repository } from 'typeorm';
 import { PostEntity } from '@database/entities/post.entity';
-import { GetUserPostsResDto } from './dto/get-user-posts-res.dto';
+import { GetUserPostsResDto } from './dto/res/get-user-posts-res.dto';
 import { UserItemDto } from './dto/res/user-res.dto';
 import {
   PaginationQueryDto,
   PaginationMetaDto,
   PaginatedResult,
 } from '@shared/dtos/pagination.dto';
-import { hashPassword } from '@shared/utils';
+import { hashPassword, t } from '@shared/utils';
+import { errorCodeConstant } from '@shared/constants/error-code.constant';
 import { plainToInstance } from 'class-transformer';
 
 @Injectable()
@@ -57,6 +62,32 @@ export class UsersService {
 
   async update(id: number, updateUserDto: UpdateUserDto): Promise<UserItemDto> {
     const user = await this.findOne(id);
+
+    if (updateUserDto.username && updateUserDto.username !== user.username) {
+      const existingUsername = await this.findOneBy(
+        { username: updateUserDto.username },
+        ['id'],
+      );
+      if (existingUsername) {
+        throw new BadRequestException({
+          code: errorCodeConstant.usernameAlreadyExists,
+          message: t(`error.${errorCodeConstant.usernameAlreadyExists}`),
+        });
+      }
+    }
+
+    if (updateUserDto.email && updateUserDto.email !== user.email) {
+      const existingEmail = await this.findOneBy(
+        { email: updateUserDto.email },
+        ['id'],
+      );
+      if (existingEmail) {
+        throw new BadRequestException({
+          code: errorCodeConstant.emailAlreadyExists,
+          message: t(`error.${errorCodeConstant.emailAlreadyExists}`),
+        });
+      }
+    }
 
     if (updateUserDto.password) {
       updateUserDto.password = await hashPassword(updateUserDto.password);
