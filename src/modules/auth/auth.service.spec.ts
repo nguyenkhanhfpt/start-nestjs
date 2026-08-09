@@ -1,17 +1,24 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { AuthService } from './auth.service';
 import { TokenBlacklistService } from './services/token-blacklist.service';
 import { UserEntity } from '@database/entities/user.entity';
+import { Role } from '@shared/enums/role.enum';
 import * as authUtils from '@shared/utils';
 
 jest.mock('@shared/utils', () => ({
   comparePassword: jest.fn(),
   hashPassword: jest.fn(),
   t: jest.fn((key: string) => key),
+  assertFound: jest.fn((entity, code = 'E404') => {
+    if (!entity) {
+      throw new NotFoundException({ code, message: code });
+    }
+    return entity;
+  }),
 }));
 
 describe('AuthService', () => {
@@ -25,6 +32,7 @@ describe('AuthService', () => {
     name: 'Test User',
     email: 'test@example.com',
     password: 'hashed_password_here',
+    role: Role.USER,
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -36,6 +44,7 @@ describe('AuthService', () => {
     mockUserRepository = {
       findOne: jest.fn(),
       save: jest.fn(),
+      create: jest.fn((dto) => dto),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -194,6 +203,14 @@ describe('AuthService', () => {
 
       expect(result).toHaveProperty('accessToken');
       expect(result).toHaveProperty('refreshToken');
+    });
+
+    it('should throw BadRequestException when user no longer exists', async () => {
+      jest.spyOn(mockUserRepository, 'findOne').mockResolvedValue(null);
+
+      await expect(
+        service.refresh('deleted@example.com', mockToken),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 });

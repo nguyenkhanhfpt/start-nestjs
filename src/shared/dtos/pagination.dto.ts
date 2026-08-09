@@ -32,6 +32,30 @@ export class PaginationQueryDto {
   }
 }
 
+export class CursorPaginationQueryDto {
+  @ApiPropertyOptional({
+    example: 10,
+    description: 'Number of items per page (max 100)',
+    default: 10,
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  limit: number = 10;
+
+  @ApiPropertyOptional({
+    example: 18923456,
+    description: 'Cursor (id of the last item from the previous page)',
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  cursor?: number;
+}
+
 export class PaginationMetaDto {
   @ApiProperty({ example: 100, description: 'Total number of items' })
   @Expose()
@@ -57,9 +81,51 @@ export class PaginationMetaDto {
   }
 }
 
+export class CursorPaginationMetaDto {
+  @ApiProperty({
+    example: 23000000,
+    description: 'Estimated total number of items',
+  })
+  @Expose()
+  totalEstimate: number;
+
+  @ApiProperty({ example: 10, description: 'Items per page' })
+  @Expose()
+  limit: number;
+
+  @ApiProperty({
+    example: 18923456,
+    description: 'Cursor for the next page (null when there is no next page)',
+    nullable: true,
+  })
+  @Expose()
+  nextCursor: number | null;
+
+  @ApiProperty({ example: true, description: 'Whether a next page exists' })
+  @Expose()
+  hasNextPage: boolean;
+
+  constructor(
+    totalEstimate: number,
+    limit: number,
+    nextCursor: number | null,
+    hasNextPage: boolean,
+  ) {
+    this.totalEstimate = totalEstimate;
+    this.limit = limit;
+    this.nextCursor = nextCursor;
+    this.hasNextPage = hasNextPage;
+  }
+}
+
 export interface PaginatedResult<T> {
   items: T[];
   meta: PaginationMetaDto;
+}
+
+export interface CursorPaginatedResult<T> {
+  items: T[];
+  meta: CursorPaginationMetaDto;
 }
 
 // Factory to create typed paginated DTO class, used with @Serialize
@@ -77,4 +143,23 @@ export function PaginatedDto<TItem>(ItemDto: new (...args: any[]) => TItem) {
   }
 
   return PaginatedDtoClass;
+}
+
+// Factory to create typed cursor-paginated DTO class, used with @Serialize
+export function CursorPaginatedDto<TItem>(
+  ItemDto: new (...args: any[]) => TItem,
+) {
+  class CursorPaginatedDtoClass {
+    @ApiProperty({ isArray: true, type: () => ItemDto })
+    @Expose()
+    @TransformType(() => ItemDto)
+    items: TItem[];
+
+    @ApiProperty({ type: () => CursorPaginationMetaDto })
+    @Expose()
+    @TransformType(() => CursorPaginationMetaDto)
+    meta: CursorPaginationMetaDto;
+  }
+
+  return CursorPaginatedDtoClass;
 }

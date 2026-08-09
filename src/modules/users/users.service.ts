@@ -1,24 +1,23 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/req/create-user.dto';
 import { UpdateUserDto } from './dto/req/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '@database/entities/user.entity';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { FindOptionsWhere, QueryFailedError, Repository } from 'typeorm';
 import { PostEntity } from '@database/entities/post.entity';
-import { GetUserPostsResDto } from './dto/res/get-user-posts-res.dto';
 import { UserItemDto } from './dto/res/user-res.dto';
+import { FindUsersQueryDto } from './dto/req/find-users.dto';
 import {
   PaginationQueryDto,
   PaginationMetaDto,
   PaginatedResult,
 } from '@shared/dtos/pagination.dto';
-import { hashPassword, t } from '@shared/utils';
+import { assertFound, hashPassword, t } from '@shared/utils';
 import { errorCodeConstant } from '@shared/constants/error-code.constant';
 import { plainToInstance } from 'class-transformer';
+
+// Postgres unique_violation error code.
+const UNIQUE_VIOLATION = '23505';
 
 @Injectable()
 export class UsersService {
@@ -38,13 +37,20 @@ export class UsersService {
   }
 
   async findAll(
-    query: PaginationQueryDto,
+    query: FindUsersQueryDto,
   ): Promise<PaginatedResult<UserEntity>> {
-    const [items, total] = await this.userRepository.findAndCount({
-      skip: query.skip,
-      take: query.limit,
-      order: { createdAt: 'DESC' },
-    });
+    const qb = this.userRepository
+      .createQueryBuilder('u')
+      .orderBy('u.createdAt', 'DESC');
+
+    if (query.search) {
+      qb.andWhere('u.name ILIKE :search', { search: `%${query.search}%` });
+    }
+
+    const [items, total] = await qb
+      .skip(query.skip)
+      .take(query.limit)
+      .getManyAndCount();
 
     return {
       items,
@@ -53,51 +59,26 @@ export class UsersService {
   }
 
   async findOne(id: number): Promise<UserEntity> {
-    const user = await this.userRepository.findOne({ where: { id } });
-    if (!user) {
-      throw new NotFoundException(`User with ID "${id}" not found`);
-    }
-    return user;
+    return assertFound(await this.userRepository.findOne({ where: { id } }));
   }
 
   async update(id: number, updateUserDto: UpdateUserDto): Promise<UserItemDto> {
     const user = await this.findOne(id);
-
-    if (updateUserDto.username && updateUserDto.username !== user.username) {
-      const existingUsername = await this.findOneBy(
-        { username: updateUserDto.username },
-        ['id'],
-      );
-      if (existingUsername) {
-        throw new BadRequestException({
-          code: errorCodeConstant.usernameAlreadyExists,
-          message: t(`error.${errorCodeConstant.usernameAlreadyExists}`),
-        });
-      }
-    }
-
-    if (updateUserDto.email && updateUserDto.email !== user.email) {
-      const existingEmail = await this.findOneBy(
-        { email: updateUserDto.email },
-        ['id'],
-      );
-      if (existingEmail) {
-        throw new BadRequestException({
-          code: errorCodeConstant.emailAlreadyExists,
-          message: t(`error.${errorCodeConstant.emailAlreadyExists}`),
-        });
-      }
-    }
 
     if (updateUserDto.password) {
       updateUserDto.password = await hashPassword(updateUserDto.password);
     }
 
     Object.assign(user, updateUserDto);
-    const updated = await this.userRepository.save(user);
-    return plainToInstance(UserItemDto, updated, {
-      excludeExtraneousValues: true,
-    });
+
+    try {
+      const updated = await this.userRepository.save(user);
+      return plainToInstance(UserItemDto, updated, {
+        excludeExtraneousValues: true,
+      });
+    } catch (error) {
+      throw this.mapUniqueViolation(error);
+    }
   }
 
   async remove(id: number): Promise<{ id: number }> {
@@ -106,23 +87,15 @@ export class UsersService {
     return { id };
   }
 
-  async findOneBy(
-    where: FindOptionsWhere<UserEntity>,
-    select?: (keyof UserEntity)[],
-    relations?: string[],
-  ) {
-    return this.userRepository.findOne({
-      select: select,
-      relations: relations,
-      where,
-    });
+  existsBy(where: FindOptionsWhere<UserEntity>): Promise<boolean> {
+    return this.userRepository.exists({ where });
   }
 
   async findAllPosts(
     userId: number,
     query: PaginationQueryDto,
-  ): Promise<PaginatedResult<GetUserPostsResDto>> {
-    const [posts, total] = await this.postRepository
+  ): Promise<PaginatedResult<PostEntity>> {
+    const [items, total] = await this.postRepository
       .createQueryBuilder('p')
       .select(['p.id', 'p.title', 'p.content', 'p.createdAt'])
       .where('p.userId = :userId', { userId })
@@ -131,14 +104,37 @@ export class UsersService {
       .take(query.limit)
       .getManyAndCount();
 
-    const items = posts.map((post) => ({
-      ...post,
-      createdAt: post.createdAt.toISOString(),
-    }));
-
     return {
       items,
       meta: new PaginationMetaDto(total, query.page, query.limit),
     };
+  }
+
+  // Relies on the DB unique constraints on `username`/`email` rather than a
+  // separate pre-check query, avoiding the TOCTOU race a check-then-save
+  // pattern would leave open.
+  private mapUniqueViolation(error: unknown): Error {
+    if (
+      error instanceof QueryFailedError &&
+      (error as any).driverError?.code === UNIQUE_VIOLATION
+    ) {
+      const detail: string = (error as any).driverError?.detail ?? '';
+
+      if (detail.includes('username')) {
+        return new BadRequestException({
+          code: errorCodeConstant.usernameAlreadyExists,
+          message: t(`error.${errorCodeConstant.usernameAlreadyExists}`),
+        });
+      }
+
+      if (detail.includes('email')) {
+        return new BadRequestException({
+          code: errorCodeConstant.emailAlreadyExists,
+          message: t(`error.${errorCodeConstant.emailAlreadyExists}`),
+        });
+      }
+    }
+
+    return error as Error;
   }
 }

@@ -22,12 +22,7 @@ export class IsExistEmailValidator implements ValidatorConstraintInterface {
       return false;
     }
 
-    return !(await this.usersService.findOneBy(
-      {
-        email: value,
-      },
-      ['id'],
-    ));
+    return !(await this.usersService.existsBy({ email: value }));
   }
 
   /* eslint-disable-next-line @typescript-eslint/no-unused-vars */

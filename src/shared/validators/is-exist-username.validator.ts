@@ -22,12 +22,7 @@ export class IsExistUsernameValidator implements ValidatorConstraintInterface {
       return false;
     }
 
-    return !(await this.usersService.findOneBy(
-      {
-        username: value,
-      },
-      ['id'],
-    ));
+    return !(await this.usersService.existsBy({ username: value }));
   }
 
   /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
