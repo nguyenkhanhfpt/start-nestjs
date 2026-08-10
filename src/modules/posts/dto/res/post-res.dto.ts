@@ -1,6 +1,6 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, OmitType } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
-import { PaginatedDto } from '@shared/dtos/pagination.dto';
+import { CursorPaginatedDto } from '@shared/dtos/pagination.dto';
 
 export class UserItemDto {
   @ApiProperty({ description: 'ID of the user', example: 1 })
@@ -67,4 +67,9 @@ export class PostItemDto {
   createdAt: Date;
 }
 
-export class PaginatedPostsDto extends PaginatedDto(PostItemDto) {}
+// List view omits `content` (large text column) — it is not selected by findAll
+export class PostListItemDto extends OmitType(PostItemDto, [
+  'content',
+] as const) {}
+
+export class PaginatedPostsDto extends CursorPaginatedDto(PostListItemDto) {}

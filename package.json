@@ -112,8 +112,10 @@
       "^@modules/(.*)$": "<rootDir>/modules/$1",
       "^@database/(.*)$": "<rootDir>/database/$1",
       "^@decorators$": "<rootDir>/decorators",
+      "^@decorators/(.*)$": "<rootDir>/decorators/$1",
       "^@interceptors$": "<rootDir>/interceptors",
       "^@shared/(.*)$": "<rootDir>/shared/$1",
+      "^@guards$": "<rootDir>/guards",
       "^@guards/(.*)$": "<rootDir>/guards/$1",
       "^@app.service$": "<rootDir>/app.service",
       "^@/(.*)$": "<rootDir>/$1"

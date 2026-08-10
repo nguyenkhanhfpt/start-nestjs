@@ -6,6 +6,7 @@
   "E4001": "Invalid credentials",
   "E4002": "Username already exists",
   "E4003": "Email already exists",
+  "E4004": "Insufficient point balance",
   "userEntity": {
     "name": {
       "isNotEmpty": "Name is required",
@@ -61,6 +62,21 @@
     "thumbnail": {
       "isString": "Thumbnail must be a string",
       "maxLength": "Thumbnail must be at most 255 characters long"
+    }
+  },
+  "userPointHistoryEntity": {
+    "type": {
+      "isNotEmpty": "Type is required",
+      "isEnum": "Type must be a valid point transaction type"
+    },
+    "amount": {
+      "isNotEmpty": "Amount is required",
+      "isInt": "Amount must be an integer",
+      "min": "Amount must be at least 1"
+    },
+    "note": {
+      "isString": "Note must be a string",
+      "maxLength": "Note must be at most 255 characters long"
     }
   }
 }

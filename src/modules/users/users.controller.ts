@@ -5,12 +5,14 @@ import {
   Body,
   Patch,
   Param,
+  ParseIntPipe,
   Delete,
   Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/req/create-user.dto';
 import { UpdateUserDto } from './dto/req/update-user.dto';
+import { FindUsersQueryDto } from './dto/req/find-users.dto';
 import {
   ApiBearerAuth,
   ApiTags,
@@ -44,7 +46,9 @@ export class UsersController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all users (paginated)' })
+  @ApiOperation({
+    summary: 'Get all users (paginated), optionally searching by name',
+  })
   @ApiResponse({
     status: 200,
     description: 'Returns a paginated list of users.',
@@ -52,7 +56,7 @@ export class UsersController {
   })
   @ApiGetErrorsResponse()
   @Serialize(PaginatedUsersDto)
-  findAll(@Query() query: PaginationQueryDto): Promise<PaginatedUsersDto> {
+  findAll(@Query() query: FindUsersQueryDto): Promise<PaginatedUsersDto> {
     return this.usersService.findAll(query) as any;
   }
 
@@ -66,8 +70,8 @@ export class UsersController {
   })
   @ApiGetErrorsResponse()
   @Serialize(UserItemDto)
-  findOne(@Param('id') id: string): Promise<UserItemDto> {
-    return this.usersService.findOne(+id) as any;
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<UserItemDto> {
+    return this.usersService.findOne(id) as any;
   }
 
   @Patch(':id')
@@ -81,10 +85,10 @@ export class UsersController {
   @ApiErrorsResponse()
   @Serialize(UserItemDto)
   update(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<UserItemDto> {
-    return this.usersService.update(+id, updateUserDto);
+    return this.usersService.update(id, updateUserDto);
   }
 
   @Delete(':id')
@@ -96,8 +100,8 @@ export class UsersController {
     schema: { example: { id: 1 } },
   })
   @ApiGetErrorsResponse()
-  remove(@Param('id') id: string): Promise<{ id: number }> {
-    return this.usersService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: number): Promise<{ id: number }> {
+    return this.usersService.remove(id);
   }
 
   @Get(':id/posts')
@@ -111,7 +115,7 @@ export class UsersController {
   @ApiGetErrorsResponse()
   @Serialize(PaginatedUserPostsDto)
   findAllPosts(
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
     @Query() query: PaginationQueryDto,
   ): Promise<PaginatedUserPostsDto> {
     return this.usersService.findAllPosts(id, query) as any;

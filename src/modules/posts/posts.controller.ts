@@ -5,6 +5,7 @@ import {
   Body,
   Patch,
   Param,
+  ParseIntPipe,
   Delete,
   Query,
 } from '@nestjs/common';
@@ -23,7 +24,7 @@ import { ApiErrorsResponse, ApiGetErrorsResponse } from '@decorators';
 import { CreatePostDto } from './dto/req/create-post.dto';
 import { PostItemDto, PaginatedPostsDto } from './dto/res/post-res.dto';
 import { Serialize } from '@interceptors';
-import { PaginationQueryDto } from '@shared/dtos/pagination.dto';
+import { CursorPaginationQueryDto } from '@shared/dtos/pagination.dto';
 
 @ApiBearerAuth()
 @ApiTags('Posts')
@@ -46,15 +47,17 @@ export class PostsController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all posts (paginated)' })
+  @ApiOperation({ summary: 'Get all posts (cursor paginated)' })
   @ApiResponse({
     status: 200,
-    description: 'Returns a paginated list of posts.',
+    description: 'Returns a cursor-paginated list of posts.',
     type: PaginatedPostsDto,
   })
   @ApiGetErrorsResponse()
   @Serialize(PaginatedPostsDto)
-  findAll(@Query() query: PaginationQueryDto): Promise<PaginatedPostsDto> {
+  findAll(
+    @Query() query: CursorPaginationQueryDto,
+  ): Promise<PaginatedPostsDto> {
     return this.postsService.findAll(query) as any;
   }
 
@@ -68,8 +71,8 @@ export class PostsController {
   })
   @ApiGetErrorsResponse()
   @Serialize(PostItemDto)
-  findOne(@Param('id') id: string): Promise<PostItemDto> {
-    return this.postsService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<PostItemDto> {
+    return this.postsService.findOne(id);
   }
 
   @Patch(':id')
@@ -81,11 +84,11 @@ export class PostsController {
   })
   @ApiErrorsResponse()
   update(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body() updatePostDto: UpdatePostDto,
     @UserDecorator() user: UserEntity,
   ) {
-    return this.postsService.update(+id, updatePostDto, user.id);
+    return this.postsService.update(id, updatePostDto, user.id);
   }
 
   @Delete(':id')
@@ -96,7 +99,10 @@ export class PostsController {
     description: 'Post has been successfully deleted.',
   })
   @ApiGetErrorsResponse()
-  remove(@Param('id') id: string, @UserDecorator() user: UserEntity) {
-    return this.postsService.remove(+id, user.id);
+  remove(
+    @Param('id', ParseIntPipe) id: number,
+    @UserDecorator() user: UserEntity,
+  ) {
+    return this.postsService.remove(id, user.id);
   }
 }

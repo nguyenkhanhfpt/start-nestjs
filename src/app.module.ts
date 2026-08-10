@@ -3,6 +3,7 @@ import { AppController } from '@app.controller';
 import { PostsModule } from '@modules/posts/posts.module';
 import { AppService } from '@app.service';
 import { UsersModule } from '@modules/users/users.module';
+import { UserPointsModule } from '@modules/user-points/user-points.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from '@modules/auth/auth.module';
@@ -76,6 +77,7 @@ import { HealthModule } from '@modules/health/health.module';
     }),
     LoggerModule,
     UsersModule,
+    UserPointsModule,
     AuthModule,
     QueueModule,
     PostsModule,

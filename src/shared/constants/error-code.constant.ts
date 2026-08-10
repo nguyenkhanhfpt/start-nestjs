@@ -6,4 +6,5 @@ export const errorCodeConstant = {
   invalidCredentials: 'E4001',
   usernameAlreadyExists: 'E4002',
   emailAlreadyExists: 'E4003',
+  insufficientBalance: 'E4004',
 };

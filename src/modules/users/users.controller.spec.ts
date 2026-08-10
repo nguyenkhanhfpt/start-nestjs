@@ -84,13 +84,23 @@ describe('UsersController', () => {
       expect(result).toEqual(mockPaginatedUsers);
       expect(usersService.findAll).toHaveBeenCalledWith(query);
     });
+
+    it('should pass the search param through to the service', async () => {
+      mockUsersService.findAll.mockResolvedValue(mockPaginatedUsers);
+
+      const query = { page: 1, limit: 10, search: 'john' } as any;
+      const result = await controller.findAll(query);
+
+      expect(result).toEqual(mockPaginatedUsers);
+      expect(usersService.findAll).toHaveBeenCalledWith(query);
+    });
   });
 
   describe('findOne', () => {
     it('should return a user by id', async () => {
       mockUsersService.findOne.mockResolvedValue(mockUser);
 
-      const result = await controller.findOne('1');
+      const result = await controller.findOne(1);
 
       expect(result).toEqual(mockUser);
       expect(usersService.findOne).toHaveBeenCalledWith(1);
@@ -101,9 +111,7 @@ describe('UsersController', () => {
         new NotFoundException('User with ID "999" not found'),
       );
 
-      await expect(controller.findOne('999')).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(controller.findOne(999)).rejects.toThrow(NotFoundException);
       expect(usersService.findOne).toHaveBeenCalledWith(999);
     });
   });
@@ -114,7 +122,7 @@ describe('UsersController', () => {
       mockUsersService.update.mockResolvedValue(updatedUser);
 
       const updateUserDto = { name: 'Updated Name' };
-      const result = await controller.update('1', updateUserDto as any);
+      const result = await controller.update(1, updateUserDto as any);
 
       expect(result).toEqual(updatedUser);
       expect(usersService.update).toHaveBeenCalledWith(1, updateUserDto);
@@ -125,7 +133,7 @@ describe('UsersController', () => {
         new NotFoundException('User with ID "999" not found'),
       );
 
-      await expect(controller.update('999', {} as any)).rejects.toThrow(
+      await expect(controller.update(999, {} as any)).rejects.toThrow(
         NotFoundException,
       );
     });
@@ -135,7 +143,7 @@ describe('UsersController', () => {
     it('should remove a user and return the deleted id', async () => {
       mockUsersService.remove.mockResolvedValue({ id: 1 });
 
-      const result = await controller.remove('1');
+      const result = await controller.remove(1);
 
       expect(result).toEqual({ id: 1 });
       expect(usersService.remove).toHaveBeenCalledWith(1);
@@ -146,7 +154,7 @@ describe('UsersController', () => {
         new NotFoundException('User with ID "999" not found'),
       );
 
-      await expect(controller.remove('999')).rejects.toThrow(NotFoundException);
+      await expect(controller.remove(999)).rejects.toThrow(NotFoundException);
     });
   });
 

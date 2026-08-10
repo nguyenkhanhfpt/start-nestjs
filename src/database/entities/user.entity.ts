@@ -1,7 +1,7 @@
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity } from 'typeorm';
 import { BaseEntity } from './base.entity';
-import { PostEntity } from './post.entity';
 import { Exclude } from 'class-transformer';
+import { Role } from '@shared/enums/role.enum';
 
 @Entity({ name: 'users' })
 export class UserEntity extends BaseEntity {
@@ -30,6 +30,6 @@ export class UserEntity extends BaseEntity {
   @Column({ name: 'is_active', default: true })
   isActive: boolean;
 
-  @OneToMany(() => PostEntity, (post) => post.user)
-  posts: PostEntity[];
+  @Column({ type: 'enum', enum: Role, default: Role.USER })
+  role: Role;
 }

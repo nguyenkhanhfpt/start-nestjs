@@ -6,7 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '@database/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { comparePassword, hashPassword, t } from '@shared/utils';
+import { assertFound, comparePassword, hashPassword, t } from '@shared/utils';
 import { errorCodeConstant } from '@shared/constants/error-code.constant';
 import { JwtPayload } from '@modules/auth/strategies/access-token.strategy';
 import { GetTokenDto, LoginResDto } from './dtos/res/login-res.dto';
@@ -36,7 +36,7 @@ export class AuthService {
   async login(loginDto: LoginDto): Promise<LoginResDto> {
     const user = await this.userRepository.findOne({
       where: { email: loginDto.email },
-      select: ['id', 'name', 'email', 'password'],
+      select: ['id', 'name', 'email', 'password', 'role'],
     });
 
     if (!user) {
@@ -78,7 +78,9 @@ export class AuthService {
    */
   async register(registerDto: RegisterDto): Promise<LoginResDto> {
     registerDto.password = await hashPassword(registerDto.password);
-    const user = await this.userRepository.save(registerDto);
+    const user = await this.userRepository.save(
+      this.userRepository.create(registerDto),
+    );
     const tokens = await this.getTokens(user);
 
     return plainToInstance(
@@ -125,6 +127,14 @@ export class AuthService {
     const user = await this.userRepository.findOne({
       where: { email },
     });
+
+    if (!user) {
+      throw new BadRequestException({
+        code: errorCodeConstant.invalidCredentials,
+        message: t(`error.${errorCodeConstant.invalidCredentials}`),
+      });
+    }
+
     const { accessToken } = await this.getTokens(user);
 
     return {
@@ -144,6 +154,7 @@ export class AuthService {
           id: user.id,
           name: user.name,
           email: user.email,
+          role: user.role,
         } as JwtPayload,
         {
           secret: this.configService.get<string>('app.jwt.accessSecret'),
@@ -155,6 +166,7 @@ export class AuthService {
           id: user.id,
           name: user.name,
           email: user.email,
+          role: user.role,
         } as JwtPayload,
         {
           secret: this.configService.get<string>('app.jwt.refreshSecret'),
@@ -167,7 +179,9 @@ export class AuthService {
   }
 
   async getUser(id: number): Promise<GetUserResDto> {
-    const user = await this.userRepository.findOne({ where: { id } });
+    const user = assertFound(
+      await this.userRepository.findOne({ where: { id } }),
+    );
 
     return plainToInstance(GetUserResDto, user, {
       excludeExtraneousValues: true,

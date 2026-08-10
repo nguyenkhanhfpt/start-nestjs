@@ -2,6 +2,7 @@
   "E4001": "Email hoặc mật khẩu không chính xác",
   "E4002": "Tên đăng nhập đã tồn tại",
   "E4003": "Email đã tồn tại",
+  "E4004": "Số điểm không đủ để thực hiện giao dịch",
   "userEntity": {
     "name": {
       "isNotEmpty": "Tên không được để trống",
@@ -57,6 +58,21 @@
     "thumbnail": {
       "isString": "Ảnh thumbnail phải là chuỗi ký tự",
       "maxLength": "Ảnh thumbnail không được vượt quá 255 ký tự"
+    }
+  },
+  "userPointHistoryEntity": {
+    "type": {
+      "isNotEmpty": "Loại giao dịch không được để trống",
+      "isEnum": "Loại giao dịch không hợp lệ"
+    },
+    "amount": {
+      "isNotEmpty": "Số điểm không được để trống",
+      "isInt": "Số điểm phải là số nguyên",
+      "min": "Số điểm phải lớn hơn hoặc bằng 1"
+    },
+    "note": {
+      "isString": "Ghi chú phải là chuỗi ký tự",
+      "maxLength": "Ghi chú không được vượt quá 255 ký tự"
     }
   }
 }
